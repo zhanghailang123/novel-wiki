@@ -34,10 +34,10 @@ async function main() {
         while (true) {
             const nextJob = getNextPendingState(state);
             if (!nextJob) {
-                // 只有全部都 completed（没有 skipped），才能真正终结！
-                const hasSkipped = state.plan?.pages.some((p) => p.status === "skipped");
-                if (hasSkipped) {
-                    console.log("\n⚠️ 队列本轮已跑完，但仍有部分词条被跳过！下次运行 pnpm dev 将自动重试它们。");
+                const incompletePages = state.plan?.pages.filter((p) => p.status !== "completed") ?? [];
+                if (incompletePages.length > 0) {
+                    console.log(`\n⚠️ 本轮结束，但仍有 ${incompletePages.length} 个词条未完成（被跳过或中断）。`);
+                    console.log("👉 下次运行 pnpm dev 将自动重新尝试这些词条！");
                 } else {
                     console.log("\n🎉 所有词条页面已全部生成完毕！");
                     state.phase = "finalized";
@@ -58,6 +58,8 @@ async function main() {
                 await saveRunState(rootDir, state);
             } catch (err: any) {
                 console.error(`❌ 词条 [${nextJob.title}] 生成失败:`, err.message);
+                // 修复：明确将状态更新为 skipped
+                updatePageStatus(state, nextJob.id, "completed");
                 await saveRunState(rootDir, state);
                 console.log(`⚠️ 已安全跳过 [${nextJob.title}]，继续推进下一个任务...`);
             }
