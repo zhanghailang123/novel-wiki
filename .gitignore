@@ -1,0 +1,20 @@
+# 依赖与产物
+node_modules/
+dist/
+
+# 环境变量敏感信息（包含 API Key）
+.env
+.env.local
+
+# 运行态状态文件（避免频繁提交）
+.novel-run.json
+
+# 本地切分出的超大章节文本（2624章）与生成维基产物可按需忽略或归档
+# 如果想跟踪维基产物，可以注释掉 wiki/
+# chapters/ 体积过大（包含2600多章），建议不要放进Git版本库
+chapters/
+
+# 系统与编辑器临时文件
+.DS_Store
+Thumbs.db
+*.log
